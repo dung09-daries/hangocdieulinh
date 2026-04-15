@@ -13,17 +13,16 @@ import re
 
 load_dotenv()
 
-bot ='8525686242:AAGAnJcCeKuSPDTXWS4b8bBqor_jKcPK60E'
+bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
 payos = PayOS(
-    client_id='3bee4f70-74b8-4179-a7c2-8bcdb71f623c',
-    api_key='229cb1ec-0b41-421d-9747-7f858479028b',
-    checksum_key='cc90bf06dc170250328773423dc431cbd3452526f8cf477467164c5d98b1e30a'
+    client_id=os.getenv('PAYOS_CLIENT_ID'),
+    api_key=os.getenv('PAYOS_API_KEY'),
+    checksum_key=os.getenv('PAYOS_CHECKSUM_KEY')
 )
 client = MongoClient(os.getenv('MONGO_URI'))
 db = client['ban_taikhoan_pro']
-
 ADMIN_ID = int(os.getenv('ADMIN_ID', 0))
-ADMIN_BINANCE_ID = os.getenv('ADMIN_BINANCE_ID', '5619469144')
+ADMIN_BINANCE_ID = os.getenv('ADMIN_BINANCE_ID', '1163285604')
 USDT_RATE = int(os.getenv('USDT_RATE', 27000))
 
 users = db['users']
