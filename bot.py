@@ -1,3 +1,6 @@
+from keep_alive import keep_alive
+keep_alive()
+# ... (Phần code bot Telegram/Free Fire của Dũng ở dưới)
 import telebot
 import random
 import os
