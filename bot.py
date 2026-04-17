@@ -13,7 +13,9 @@ from flask import Flask
 import threading
 import time
 import re
+
 load_dotenv()
+
 bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
 payos = PayOS(
     client_id=os.getenv('PAYOS_CLIENT_ID'),
@@ -761,54 +763,60 @@ Thank you for your purchase! 🎊
 # ================== ADMIN COMMANDS ==================
 @bot.message_handler(commands=['admin'])
 def admin_help(message):
+    """Hiển thị danh sách tất cả lệnh admin"""
     if message.from_user.id != ADMIN_ID:
         bot.reply_to(message, "❌ Bạn không có quyền sử dụng lệnh này!")
         return
     
     help_text = """
-🔧 **ADMIN COMMANDS**
+🔧 **ADMIN COMMANDS - DANH SÁCH LỆNH QUẢN TRỊ**
 
-📊 **Quản lý user:**
-/danhsach - Xem danh sách tất cả người dùng
-/xoasodu <user_id> [vnd|usdt|all] - Xóa số dư 1 user
-/xoasoduall [vnd|usdt|all] - Xóa số dư TẤT CẢ user (có xác nhận)
-/addbalance <user_id> <số> [vnd|usdt] - Cộng tiền
-/resetallbalance - Reset tất cả số dư (có xác nhận)
+📊 **Quản lý User:**
+├── `/danhsach` - Xem danh sách tất cả người dùng
+├── `/xoasodu <user_id> [vnd|usdt|all]` - Xóa số dư 1 user
+├── `/xoasoduall [vnd|usdt|all]` - Xóa số dư TẤT CẢ user
+├── `/addbalance <user_id> <số> [vnd|usdt]` - Cộng tiền cho user
+└── `/resetallbalance` - Reset tất cả số dư về 0
 
-💰 **Quản lý nạp:**
-/duyetnap <mã> - Duyệt nạp VND
-/duyetnapusdt <mã> - Duyệt nạp USDT
+💰 **Quản lý Nạp tiền:**
+├── `/duyetnap <mã_đơn>` - Duyệt đơn nạp VND
+└── `/duyetnapusdt <mã_đơn>` - Duyệt đơn nạp USDT
 
-📦 **Quản lý đơn hàng:**
-/giao <mã> - Giao tài khoản
+📦 **Quản lý Đơn hàng:**
+└── `/giao <mã_đơn>` - Giao tài khoản thủ công
 
-🔧 **Quản lý stock:**
-/setcanva <số> - Set số lượng Canva 1 Slot
-/setyoutube <số> - Set số lượng YouTube 1 Slot
-/sethotspot <số> - Set số lượng Hotspot
-/setgemini <số> - Set số lượng Gemini
-/setcapcut <số> - Set số lượng CapCut
-/stock - Xem tồn kho hiện tại
+🔧 **Quản lý Stock:**
+├── `/stock` - Xem tồn kho hiện tại
+├── `/setcanva <số>` - Set số lượng Canva 1 Slot
+├── `/setyoutube <số>` - Set số lượng YouTube 1 Slot
+├── `/sethotspot <số>` - Set số lượng Hotspot
+├── `/setgemini <số>` - Set số lượng Gemini
+├── `/setcapcut <số>` - Set số lượng CapCut
+├── `/resetcanva1` - Reset Canva 1 Slot về 100 slot
+└── `/resetyoutube` - Reset YouTube 1 Slot về 10 slot
 
-💰 **Quản lý giá sản phẩm:**
-/setprice <mã_sp> <giá_vnd> [giá_usdt] - Sửa giá sản phẩm
-/setenable <mã_sp> <on|off> - Bật/tắt sản phẩm
-/prices - Xem tất cả giá sản phẩm
+💰 **Quản lý Giá sản phẩm:**
+├── `/prices` - Xem bảng giá tất cả sản phẩm
+├── `/setprice <mã_sp> <giá_vnd> [giá_usdt]` - Sửa giá sản phẩm
+└── `/setenable <mã_sp> <on|off>` - Bật/tắt sản phẩm
+
+📤 **Upload Tài khoản:**
+├── `/upload_canva` - Upload file .txt cho Canva 1 Slot
+├── `/upload_youtube` - Upload file .txt cho YouTube 1 Slot
+├── `/upload_hotspot` - Upload file .txt cho Hotspot
+├── `/upload_gemini` - Upload file .txt cho Gemini
+└── `/upload_capcut` - Upload file .txt cho CapCut
 
 📢 **Thông báo:**
-/broadcast <nội dung> - Gửi thông báo đến TẤT CẢ người dùng
-/broadcastlang <vi|en> <nội dung> - Gửi thông báo theo ngôn ngữ
-
-📤 **Upload tài khoản:**
-/upload_canva - Upload file txt cho Canva
-/upload_youtube - Upload file txt cho YouTube
-/upload_hotspot - Upload file txt cho Hotspot
-/upload_gemini - Upload file txt cho Gemini
-/upload_capcut - Upload file txt cho CapCut
+├── `/broadcast <nội_dung>` - Gửi thông báo đến TẤT CẢ user
+└── `/broadcastlang <vi|en> <nội_dung>` - Gửi thông báo theo ngôn ngữ
 
 ⚙️ **Cài đặt:**
-/setusdtrate <tỷ_giá> - Cập nhật tỷ giá USDT
-/reload - Tải lại danh mục sản phẩm từ DB
+├── `/setusdtrate <tỷ_giá>` - Cập nhật tỷ giá USDT/VND
+├── `/reload` - Tải lại danh mục sản phẩm từ DB
+└── `/admin` - Xem danh sách lệnh này
+
+📋 **Mã sản phẩm:** `hotspot`, `gemini`, `capcut`, `canva1slot`, `canva100slot`, `youtube1slot`
     """
     bot.send_message(message.chat.id, help_text, parse_mode='Markdown')
 
@@ -954,7 +962,7 @@ def admin_broadcast(message):
         # Tạo markup xác nhận
         markup = telebot.types.InlineKeyboardMarkup(row_width=2)
         markup.add(
-            telebot.types.InlineKeyboardButton("✅ GỬI", callback_data=f"confirm_broadcast"),
+            telebot.types.InlineKeyboardButton("✅ GỬI", callback_data="confirm_broadcast"),
             telebot.types.InlineKeyboardButton("❌ HỦY", callback_data="cancel_broadcast")
         )
         
@@ -1410,6 +1418,22 @@ def admin_set_capcut(message):
         bot.reply_to(message, f"✅ Đã set CapCut về **{count} tài khoản**!")
     except Exception as e:
         bot.reply_to(message, f"❌ Lỗi: {e}\nSử dụng: /setcapcut <số_lượng>")
+
+@bot.message_handler(commands=['resetcanva1'])
+def admin_reset_canva1(message):
+    if message.from_user.id != ADMIN_ID:
+        bot.reply_to(message, "❌ Bạn không có quyền sử dụng lệnh này!")
+        return
+    stocks.update_one({"category": "canva1slot"}, {"$set": {"accounts": ["Slot sẵn sàng"] * 100}}, upsert=True)
+    bot.reply_to(message, "✅ Đã reset Canva 1 Slot về **100 slot**!")
+
+@bot.message_handler(commands=['resetyoutube'])
+def admin_reset_youtube(message):
+    if message.from_user.id != ADMIN_ID:
+        bot.reply_to(message, "❌ Bạn không có quyền sử dụng lệnh này!")
+        return
+    stocks.update_one({"category": "youtube1slot"}, {"$set": {"accounts": ["Slot sẵn sàng"] * 10}}, upsert=True)
+    bot.reply_to(message, "✅ Đã reset YouTube 1 Slot về **10 slot**!")
 
 # ================== UPLOAD FILE TXT ==================
 @bot.message_handler(commands=['upload_canva', 'upload_youtube', 'upload_hotspot', 'upload_gemini', 'upload_capcut'])
